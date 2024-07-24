@@ -13,7 +13,15 @@ public class KeyBindScreen : ScreenGui
     {
         foreach (var modInfo in ModEntry.GetInstance().Helper.ModRegistry.GetAll())
         {
-            var mod = (modInfo.GetType().GetMethod("get_Mod")!.Invoke(modInfo, null) as IMod)!;
+            var mod = modInfo.GetType().GetMethod("get_Mod")!.Invoke(modInfo, null) as IMod;
+
+            if (mod == null)
+            {
+                ModEntry.GetInstance().Monitor.Log($"Mod {modInfo.Manifest.Name} is null, so it will be skipped.",
+                    LogLevel.Warn);
+                continue;
+            }
+
             var configField = mod.GetType()
                 .GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)
                 .FirstOrDefault(it =>
